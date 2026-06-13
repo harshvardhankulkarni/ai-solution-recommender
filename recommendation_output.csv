@@ -1,0 +1,6 @@
+model,provider,open_source,coding_score,reasoning_score,creative_score,analysis_score,multilingual_score,vision_score,cost_monthly,latency_sec,data_privacy,ease_integration,reliability_score,privacy_score,tech_score,weighted_score,latency_penalty,cost_penalty,final_score,rank
+GPT-4o,OpenAI,False,90,89,88,87,85,92,200,1.2,2,5,95,3,3,61.349999999999994,0.6,1.0,45.40699999999999,1
+Claude 3.5 Sonnet,Anthropic,False,92,91,85,90,82,88,150,1.5,3,4,93,3,3,60.24999999999999,0.75,0.7076023391812866,44.5654678362573,2
+Gemini 1.5 Pro,Google,False,84,86,82,88,91,87,120,0.8,2,4,90,3,3,59.55,0.4,0.5321637426900585,43.80574853801169,3
+Mistral Large,Mistral,True,82,84,78,83,80,0,80,1.0,4,3,88,3,3,56.099999999999994,0.5,0.29824561403508776,41.78912280701754,4
+Llama 3 70B,Meta,True,80,83,76,81,78,0,30,2.0,5,3,85,3,3,54.900000000000006,1.0,0.005847953216374324,40.719590643274856,5
