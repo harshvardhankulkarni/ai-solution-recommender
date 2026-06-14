@@ -1,105 +1,80 @@
-# Architecture: AI Solution Recommender
+<!-- GSD -->
 
-## Context
+# AI Solution Recommender — Architecture
 
-Businesses face a difficult choice when selecting an AI model. Dozens of options exist with different strengths, costs, and trade-offs. A structured decision system helps match the right model to the right use case.
+## Context and Goals
 
-## Goals
+Decision engine that matches AI models to business use cases. Interactive CLI takes 5 inputs (industry, problem type, budget, technical level, data sensitivity) and ranks models using a weighted scoring system.
 
-- Accept client requirements in plain business terms.
-- Score each model against weighted criteria.
-- Return ranked recommendations with reasoning.
-- Handle multiple industries and problem types.
-- Produce a visual comparison across scenarios.
-
-## Design
-
-### System Architecture
+## Data Flow
 
 ```
-Input Layer
-  - Client requirements (industry, problem, budget, tech level, privacy, accuracy)
-        |
-        v
-Filter Layer
-  - Budget filter (removes models above price threshold)
-  - Privacy filter (weighs open source for sensitive data)
-  - Technical filter (weighs ease of integration for low-tech teams)
-        |
-        v
-Scoring Engine
-  - Task weights selected by problem type
-  - Weighted score = sum(task_score * weight) for all capability dimensions
-  - Final score = weighted_score*0.5 + reliability*0.15 + privacy*0.10 + tech*0.10 - latency*0.08 - cost*0.07
-        |
-        v
-Ranking Layer
-  - Sort by final score descending
-  - Return top 3 with reasoning
-        |
-        v
-Output Layer
-  - Console report
-  - Scenario visualization (multi-panel chart)
-  - CSV export
+User Input (5 questions: industry, problem, budget, tech level, sensitivity)
+  → Model filtering by budget/technical level
+  → Multi-factor scoring (task fit 50%, reliability 15%, privacy 10%, integration 10%, latency -8%, cost -7%)
+  → Ranking and top 3 recommendation
+  → Free alternative mapping
+  → 4-scenario comparison generation
+  → Interactive Plotly radar chart + cost comparison
+  → CSV export (recommendation, scenarios)
 ```
 
-### Model Capability Matrix
+## Components
 
-| Model | Coding | Reasoning | Creative | Analysis | Multilingual | Vision | Cost/mo | Latency |
-|-------|--------|-----------|----------|----------|-------------|--------|---------|---------|
-| GPT-4o | 90 | 89 | 88 | 87 | 85 | 92 | $200 | 1.2s |
-| Claude 3.5 Sonnet | 92 | 91 | 85 | 90 | 82 | 88 | $150 | 1.5s |
-| Gemini 1.5 Pro | 84 | 86 | 82 | 88 | 91 | 87 | $120 | 0.8s |
-| Llama 3 70B | 80 | 83 | 76 | 81 | 78 | 0 | $30 | 2.0s |
-| Mistral Large | 82 | 84 | 78 | 83 | 80 | 0 | $80 | 1.0s |
+| File | Role |
+|------|------|
+| `ai_solution_recommender.py` | Main script: CLI interaction, scoring engine, ranking, scenario comparison, static chart |
+| `generate_interactive.py` | Generates interactive Plotly HTML with radar + cost comparison |
+| `ai_solution_recommender.ipynb` | Jupyter notebook for exploratory development |
+| `recommendation_output.csv` | Custom scenario model scores |
+| `scenarios_output.csv` | Scenario comparison data |
+| `ai_solution_recommender.png` | Static 4-scenario comparison chart |
+| `ai_solution_recommender_interactive.html` | Interactive Plotly chart |
 
-### Task Weight Profiles
+## Scoring Model
 
-Each problem type has a different weight profile. For example:
+| Factor | Weight | Notes |
+|--------|--------|-------|
+| Task fit | 50% | How well the model performs the specific problem type |
+| Reliability | 15% | Consistency and uptime reputation |
+| Privacy | 10% | Data handling and processing location |
+| Ease of integration | 10% | API complexity and SDK availability |
+| Latency penalty | -8% | Slow models penalized |
+| Cost penalty | -7% | Expensive models penalized |
 
-```python
-'code_gen': {
-    'coding_score': 0.4,       # Coding is 40% of the task score
-    'reasoning_score': 0.2,
-    'latency_sec': 0.1,
-    'cost_monthly': 0.15,
-    'reliability_score': 0.15,
-}
-
-'content_gen': {
-    'creative_score': 0.35,    # Creative is 35% of the task score
-    'reasoning_score': 0.2,
-    'cost_monthly': 0.2,
-    'multilingual_score': 0.15,
-    'latency_sec': 0.1,
-}
-```
-
-## Key Decisions
+## Design Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| Rule-based scoring instead of ML | Transparent, explainable, auditable. No training data needed. |
-| 5 models | Covers the major providers (OpenAI, Anthropic, Google, Meta, Mistral). |
-| 8 problem types | Covers 90% of common business AI use cases. |
-| 6 input parameters | Enough to differentiate use cases without overwhelming users. |
-| Weighted scoring | Simple additive model. Easy to understand and modify. |
+| 5 input questions | Captures key decision factors without overwhelming |
+| Weighted scoring | Reflects real-world priority differences |
+| Penalty factors | Latency and cost reduce but don't eliminate a model's chances |
+| 4-scenario comparison | Shows how different inputs change recommendations |
+| 5 models | Focused comparison on major providers |
 
 ## Trade-offs
 
-- **Rule-based vs ML-based**: A machine learning model could learn better weights from historical decisions. Rule-based is simpler and more transparent but may miss subtle patterns.
-- **5 vs 50 models**: 5 models is manageable for a demo. A production system would score 50+ models from an API.
-- **Static weights**: Task weights are fixed. Real preferences vary by company, team, and project.
-- **No financial ROI**: The system does not calculate expected ROI from using a specific model. That would require client-specific data.
+- Scoring weights are subjective and business-dependent
+- Limited model set may miss niche solutions
+- No real-time model availability or pricing checks
+- CLI only — no web UI or API
 
-## Integration Points
+## File Organization
 
-- **Input**: Dictionary of client requirements. Could come from a web form, API, or Slack command.
-- **Output**: Structured recommendation data. Could feed into a web UI, report generator, or procurement system.
-- **Extending**: Add new models by appending to the DataFrame. Add new problem types by defining weight profiles.
-
-## Dependencies
-
-- Python 3.8+
-- pandas, numpy, matplotlib
+```
+ai-solution-recommender/
+├── ai_solution_recommender.py
+├── generate_interactive.py
+├── ai_solution_recommender.ipynb
+├── ai_solution_recommender.png
+├── ai_solution_recommender_interactive.html
+├── recommendation_output.csv
+├── scenarios_output.csv
+├── index.html
+└── docs/
+    ├── ARCHITECTURE.md
+    ├── GETTING-STARTED.md
+    ├── DEVELOPMENT.md
+    ├── TESTING.md
+    └── CONFIGURATION.md
+```
