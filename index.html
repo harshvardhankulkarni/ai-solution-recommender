@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>AI Solution Recommender - Demo Project</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8f9fa;color:#1a1a2e;line-height:1.6}
+.container{max-width:900px;margin:0 auto;padding:40px 20px}
+h1{font-size:2em;margin-bottom:8px;color:#16213e}
+h2{color:#0f3460;margin:24px 0 12px}
+.demo-tag{color:#e94560;font-weight:600;font-size:0.9em}
+img{max-width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.1);margin:16px 0}
+.card{background:white;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin:16px 0}
+.tag{display:inline-block;background:#e9ecef;color:#495057;padding:3px 10px;border-radius:20px;font-size:0.85em;margin:2px 4px 2px 0}
+.btn{display:inline-block;background:#0f3460;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:500;margin:8px 4px}
+.btn:hover{background:#16213e}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+.input{padding:12px;background:#f8f9fa;border-radius:8px}
+.input strong{color:#0f3460}
+.rec{background:#e8f4f8;padding:16px;border-radius:8px;border-left:4px solid #0f3460;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>AI Solution Recommender</h1>
+<p class="demo-tag">Demo Project</p>
+<p>Decision engine that recommends the best AI model for a given business use case. Scores 5 models across 10 capability dimensions.</p>
+
+<div class="card">
+<h2>Output Chart</h2>
+<img src="ai_solution_recommender.png" alt="AI Solution Recommender Chart">
+</div>
+
+<div class="card">
+<h2>How It Works</h2>
+<p>Takes 6 client inputs and scores each model:</p>
+<div class="grid">
+<div class="input"><strong>Industry</strong><br>ecommerce, healthcare, finance, education, marketing, legal, manufacturing, saas</div>
+<div class="input"><strong>Problem</strong><br>chatbot, content_gen, data_analysis, code_gen, document, translation, classification, extraction</div>
+<div class="input"><strong>Budget</strong><br>low ($100/mo), medium ($200/mo), high (any)</div>
+<div class="input"><strong>Technical Level</strong><br>low, medium, high</div>
+</div>
+</div>
+
+<div class="card">
+<h2>Sample Scenarios</h2>
+<div class="rec"><strong>E-commerce Chatbot (low budget):</strong> Mistral Large (open source, low cost)</div>
+<div class="rec"><strong>Healthcare Document Analysis (high privacy):</strong> Claude 3.5 Sonnet (best document + strong privacy)</div>
+<div class="rec"><strong>SaaS Code Generation:</strong> Claude 3.5 Sonnet (HumanEval 92%)</div>
+<div class="rec"><strong>Marketing Content (global):</strong> GPT-4o (strong creative + multilingual)</div>
+</div>
+
+<a class="btn" href="https://github.com/harshvardhankulkarni/ai-solution-recommender" target="_blank">View Source</a>
+<a class="btn" href="ai_solution_recommender.py" target="_blank">Download Script</a>
+<a class="btn" href="docs/architecture.md" target="_blank">Architecture</a>
+<a class="btn" href="docs/runbook.md" target="_blank">Runbook</a>
+</div>
+</body>
+</html>
