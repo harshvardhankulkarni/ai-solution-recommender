@@ -1,232 +1,263 @@
 """
 AI Solution Recommender - Demo Project
-Recommends the best AI model for a given business use case.
-Evaluates models against client requirements across multiple dimensions.
+Interactive CLI: takes your business requirements and recommends
+the best AI model with platform info and free alternatives.
 """
 
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 
 models = pd.DataFrame({
     'model': ['GPT-4o', 'Claude 3.5 Sonnet', 'Gemini 1.5 Pro', 'Llama 3 70B', 'Mistral Large'],
     'provider': ['OpenAI', 'Anthropic', 'Google', 'Meta', 'Mistral'],
     'open_source': [False, False, False, True, True],
-    'coding_score': [90, 92, 84, 80, 82],
-    'reasoning_score': [89, 91, 86, 83, 84],
-    'creative_score': [88, 85, 82, 76, 78],
-    'analysis_score': [87, 90, 88, 81, 83],
-    'multilingual_score': [85, 82, 91, 78, 80],
-    'vision_score': [92, 88, 87, 0, 0],
+    'coding': [90, 92, 84, 80, 82],
+    'reasoning': [89, 91, 86, 83, 84],
+    'creative': [88, 85, 82, 76, 78],
+    'analysis': [87, 90, 88, 81, 83],
+    'multilingual': [85, 82, 91, 78, 80],
+    'vision': [92, 88, 87, 0, 0],
     'cost_monthly': [200, 150, 120, 30, 80],
-    'latency_sec': [1.2, 1.5, 0.8, 2.0, 1.0],
-    'data_privacy': [2, 3, 2, 5, 4],
+    'latency': [1.2, 1.5, 0.8, 2.0, 1.0],
+    'privacy_score': [2, 3, 2, 5, 4],
     'ease_integration': [5, 4, 4, 3, 3],
-    'reliability_score': [95, 93, 90, 85, 88],
+    'reliability': [95, 93, 90, 85, 88],
 })
 
+platforms = {
+    'GPT-4o': {
+        'api': 'OpenAI API (platform.openai.com)',
+        'web': 'ChatGPT (chatgpt.com)',
+        'free_tier': False,
+        'self_host': False,
+    },
+    'Claude 3.5 Sonnet': {
+        'api': 'Anthropic API (console.anthropic.com)',
+        'web': 'Claude (claude.ai)',
+        'free_tier': False,
+        'self_host': False,
+    },
+    'Gemini 1.5 Pro': {
+        'api': 'Google AI Studio (makersuite.google.com)',
+        'web': 'Gemini (gemini.google.com)',
+        'free_tier': True,
+        'self_host': False,
+    },
+    'Llama 3 70B': {
+        'api': 'Groq (groq.com), Replicate (replicate.com)',
+        'web': 'Hugging Face Chat (huggingface.co/chat)',
+        'free_tier': True,
+        'self_host': True,
+    },
+    'Mistral Large': {
+        'api': 'Mistral API (console.mistral.ai)',
+        'web': 'Le Chat (chat.mistral.ai)',
+        'free_tier': True,
+        'self_host': True,
+    },
+}
+
+free_alts = {
+    'GPT-4o': 'Llama 3 70B',
+    'Claude 3.5 Sonnet': 'Mistral Large',
+    'Gemini 1.5 Pro': 'Mistral Large',
+}
+
 industries = {
-    'ecommerce': 'E-commerce & Retail',
-    'healthcare': 'Healthcare & Pharma',
-    'finance': 'Finance & Banking',
-    'education': 'Education & E-learning',
-    'marketing': 'Marketing & Advertising',
-    'legal': 'Legal & Compliance',
-    'manufacturing': 'Manufacturing & Supply Chain',
-    'saas': 'SaaS & Technology',
+    '1': 'E-commerce & Retail',
+    '2': 'Healthcare & Pharma',
+    '3': 'Finance & Banking',
+    '4': 'Education & E-learning',
+    '5': 'Marketing & Advertising',
+    '6': 'Legal & Compliance',
+    '7': 'Manufacturing & Supply Chain',
+    '8': 'SaaS & Technology',
 }
 
-problem_types = {
-    'chatbot': 'Customer Support Chatbot',
-    'content_gen': 'Content Generation & Copywriting',
-    'data_analysis': 'Data Analysis & Reporting',
-    'code_gen': 'Code Generation & Review',
-    'document': 'Document Processing & Summarization',
-    'translation': 'Translation & Localization',
-    'classification': 'Text Classification & Routing',
-    'extraction': 'Data Extraction & OCR',
+problems = {
+    '1': ('Customer Support Chatbot', 'chatbot'),
+    '2': ('Content Generation & Copywriting', 'content_gen'),
+    '3': ('Data Analysis & Reporting', 'data_analysis'),
+    '4': ('Code Generation & Review', 'code_gen'),
+    '5': ('Document Processing & Summarization', 'document'),
+    '6': ('Translation & Localization', 'translation'),
+    '7': ('Text Classification & Routing', 'classification'),
+    '8': ('Data Extraction & OCR', 'extraction'),
 }
 
-def recommend(client_input):
-    industry = client_input['industry']
-    problem = client_input['problem']
-    budget = client_input['budget']
-    technical = client_input['technical_level']
-    data_sensitivity = client_input['data_sensitivity']
-    accuracy_needed = client_input['accuracy_needed']
+budget_levels = {
+    '1': ('Low (under $100/mo)', 100),
+    '2': ('Medium ($100-$200/mo)', 200),
+    '3': ('High (unlimited)', 99999),
+}
 
-    scores = models.copy()
+problem_weights = {
+    'chatbot': {'reasoning': 0.3, 'multilingual': 0.2, 'latency': 0.2, 'cost_monthly': 0.15, 'reliability': 0.15},
+    'content_gen': {'creative': 0.35, 'reasoning': 0.2, 'cost_monthly': 0.2, 'multilingual': 0.15, 'latency': 0.1},
+    'data_analysis': {'analysis': 0.35, 'reasoning': 0.25, 'vision': 0.1, 'cost_monthly': 0.15, 'reliability': 0.15},
+    'code_gen': {'coding': 0.4, 'reasoning': 0.2, 'latency': 0.1, 'cost_monthly': 0.15, 'reliability': 0.15},
+    'document': {'analysis': 0.3, 'reasoning': 0.25, 'multilingual': 0.15, 'cost_monthly': 0.15, 'reliability': 0.15},
+    'translation': {'multilingual': 0.4, 'reasoning': 0.2, 'cost_monthly': 0.2, 'latency': 0.1, 'reliability': 0.1},
+    'classification': {'analysis': 0.3, 'reasoning': 0.2, 'cost_monthly': 0.2, 'reliability': 0.15, 'latency': 0.15},
+    'extraction': {'vision': 0.3, 'analysis': 0.25, 'cost_monthly': 0.2, 'latency': 0.1, 'reliability': 0.15},
+}
 
-    # Limit open source for sensitive data
+
+def print_platform(m):
+    p = platforms.get(m)
+    if not p:
+        return
+    print(f'    API: {p["api"]}')
+    print(f'    Web: {p["web"]}')
+    if p['free_tier']:
+        print('    Free tier: Yes')
+    if p['self_host']:
+        print('    Self-hostable: Yes')
+
+
+def recommend(problem_key, budget_max, data_sensitivity, tech_level):
+    filtered = models.copy()
     if data_sensitivity == 'high':
-        scores['privacy_score'] = scores['data_privacy'] * 5
+        filtered['privacy_weight'] = filtered['privacy_score'] * 5
     else:
-        scores['privacy_score'] = 3
-
-    # Budget filter
-    if budget == 'low':
-        scores = scores[scores['cost_monthly'] <= 100].copy()
-    elif budget == 'medium':
-        scores = scores[scores['cost_monthly'] <= 200].copy()
-
-    # Technical capability filter
-    if technical == 'low':
-        scores['tech_score'] = scores['ease_integration'] * 3
+        filtered['privacy_weight'] = 3
+    filtered = filtered[filtered['cost_monthly'] <= budget_max].copy()
+    if len(filtered) == 0:
+        print('  No models match your budget. Try a higher budget level.')
+        return None
+    w = problem_weights.get(problem_key, problem_weights['chatbot'])
+    score_cols = ['coding', 'reasoning', 'creative', 'analysis', 'multilingual', 'vision']
+    filtered['weighted'] = sum(filtered.get(c, 0) * w.get(c, 0) for c in score_cols)
+    filtered['latency_penalty'] = filtered['latency'] / filtered['latency'].max()
+    filtered['cost_penalty'] = 1 - (filtered['cost_monthly'].max() - filtered['cost_monthly']) / max(
+        filtered['cost_monthly'].max() - filtered['cost_monthly'].min() + 1, 1)
+    if tech_level == 'low':
+        filtered['tech_score'] = filtered['ease_integration'] * 3
     else:
-        scores['tech_score'] = 3
+        filtered['tech_score'] = 3
+    filtered['final'] = (filtered['weighted'] * 0.5 + filtered['reliability'] * 0.15 +
+                         filtered['privacy_weight'] * 0.1 + filtered['tech_score'] * 0.1 -
+                         filtered['latency_penalty'] * 0.08 - filtered['cost_penalty'] * 0.07)
+    return filtered.sort_values('final', ascending=False)
 
-    # Weight by problem type
-    weights = {
-        'chatbot': {'reasoning_score': 0.3, 'multilingual_score': 0.2, 'latency_sec': 0.2, 'cost_monthly': 0.15, 'reliability_score': 0.15},
-        'content_gen': {'creative_score': 0.35, 'reasoning_score': 0.2, 'cost_monthly': 0.2, 'multilingual_score': 0.15, 'latency_sec': 0.1},
-        'data_analysis': {'analysis_score': 0.35, 'reasoning_score': 0.25, 'vision_score': 0.1, 'cost_monthly': 0.15, 'reliability_score': 0.15},
-        'code_gen': {'coding_score': 0.4, 'reasoning_score': 0.2, 'latency_sec': 0.1, 'cost_monthly': 0.15, 'reliability_score': 0.15},
-        'document': {'analysis_score': 0.3, 'reasoning_score': 0.25, 'multilingual_score': 0.15, 'cost_monthly': 0.15, 'reliability_score': 0.15},
-        'translation': {'multilingual_score': 0.4, 'reasoning_score': 0.2, 'cost_monthly': 0.2, 'latency_sec': 0.1, 'reliability_score': 0.1},
-        'classification': {'analysis_score': 0.3, 'reasoning_score': 0.2, 'cost_monthly': 0.2, 'reliability_score': 0.15, 'latency_sec': 0.15},
-        'extraction': {'vision_score': 0.3, 'analysis_score': 0.25, 'cost_monthly': 0.2, 'latency_sec': 0.1, 'reliability_score': 0.15},
-    }
 
-    w = weights.get(problem, weights['chatbot'])
+def interactive():
+    print('\n' + '=' * 60)
+    print('  AI SOLUTION RECOMMENDER')
+    print('  Answer a few questions about your business need.')
+    print('=' * 60)
+    print('\nSelect your industry:')
+    for k, v in industries.items():
+        print(f'  [{k}] {v}')
+    while True:
+        ind = input('\nIndustry (1-8): ').strip()
+        if ind in industries:
+            break
+        print('  Invalid. Pick 1-8.')
 
-    # Calculate weighted score
-    score_cols = ['coding_score', 'reasoning_score', 'creative_score',
-                  'analysis_score', 'multilingual_score', 'vision_score']
-    scores['weighted_score'] = 0
-    for col in score_cols:
-        if col in w:
-            scores['weighted_score'] += scores[col] * w[col]
+    print(f'\nIndustry: {industries[ind]}')
+    print('\nWhat problem are you solving?')
+    for k, v in problems.items():
+        print(f'  [{k}] {v[0]}')
+    while True:
+        prob = input('\nProblem (1-8): ').strip()
+        if prob in problems:
+            break
+        print('  Invalid. Pick 1-8.')
 
-    # Penalize high latency
-    scores['latency_penalty'] = scores['latency_sec'] / scores['latency_sec'].max()
-    scores['cost_penalty'] = 1 - (scores['cost_monthly'].max() - scores['cost_monthly']) / (scores['cost_monthly'].max() - scores['cost_monthly'].min() + 1)
+    prob_label, prob_key = problems[prob]
+    print(f'\nProblem: {prob_label}')
 
-    scores['final_score'] = (
-        scores['weighted_score'] * 0.5 +
-        scores['reliability_score'] * 0.15 +
-        scores['privacy_score'] * 0.10 +
-        scores['tech_score'] * 0.10 -
-        scores['latency_penalty'] * 0.08 -
-        scores['cost_penalty'] * 0.07
-    )
+    print('\nBudget:')
+    for k, v in budget_levels.items():
+        print(f'  [{k}] {v[0]}')
+    while True:
+        bg = input('\nBudget (1-3): ').strip()
+        if bg in budget_levels:
+            break
+        print('  Invalid. Pick 1-3.')
+    _, budget_max = budget_levels[bg]
 
-    scores = scores.sort_values('final_score', ascending=False).reset_index(drop=True)
-    scores['rank'] = range(1, len(scores) + 1)
+    print('\nHow technical is your team?')
+    for k, v in [('1', 'Low (need easy integration)'), ('2', 'Medium'), ('3', 'High (can handle complex APIs)')]:
+        print(f'  [{k}] {v}')
+    tech = input('\nTechnical level (1-3): ').strip()
+    tech_level = 'low' if tech == '1' else 'medium' if tech == '2' else 'high'
 
-    return scores
+    data_sens = input('\nDo you handle sensitive data? (y/n): ').strip().lower()
+    data_level = 'high' if data_sens == 'y' else 'low'
 
-def run_scenario(client_input):
-    print(f'\n=== RECOMMENDATION REPORT ===')
-    print(f'Industry: {industries[client_input["industry"]]}')
-    print(f'Problem: {problem_types[client_input["problem"]]}')
-    print(f'Budget: {client_input["budget"].title()}')
-    print(f'Technical Level: {client_input["technical_level"].title()}')
-    print(f'Data Sensitivity: {client_input["data_sensitivity"].title()}')
-    print(f'Accuracy Needed: {client_input["accuracy_needed"].title()}')
+    result = recommend(prob_key, budget_max, data_level, tech_level)
+    if result is None:
+        return
 
-    result = recommend(client_input)
+    print('\n' + '-' * 60)
+    print(f'  RECOMMENDATIONS FOR: {industries[ind]} | {prob_label}')
+    print('-' * 60)
+    for i, (_, row) in enumerate(result.head(3).iterrows()):
+        tag = 'OPEN SOURCE' if row['open_source'] else 'PAID'
+        print(f'\n  #{i+1}: {row["model"]} ({row["provider"]}) [{tag}]')
+        print(f'    Score: {row["final"]:.1f} | Cost: ${row["cost_monthly"]}/mo | Latency: {row["latency"]}s')
+        print_platform(row['model'])
+        alt = free_alts.get(row['model'])
+        if alt:
+            alt_data = models[models['model'] == alt].iloc[0]
+            print(f'    >> Free alternative: {alt} (${alt_data["cost_monthly"]}/mo, open source)')
+            print_platform(alt)
 
-    print(f'\nTop 3 Recommendations:')
-    for _, row in result.head(3).iterrows():
-        fs = row['final_score']
-        print(f'  #{int(row["rank"])}: {row["model"]} ({row["provider"]})')
-        print(f'     Score: {fs:.1f} | Cost: ${row["cost_monthly"]}/mo | Latency: {row["latency_sec"]}s')
-        msgs = []
+        reasons = []
         if row['open_source']:
-            msgs.append('Self-hostable (data stays on premise)')
-        if row['coding_score'] > 85:
-            msgs.append('Strong coding capability')
-        if row['reasoning_score'] > 85:
-            msgs.append('Advanced reasoning')
-        if row['vision_score'] > 80:
-            msgs.append('Vision/multimodal support')
-        for msg in msgs:
-            print(f'     -> {msg}')
+            reasons.append('Self-hostable (data stays on premise)')
+        if row['coding'] > 85:
+            reasons.append('Strong coding capability')
+        if row['reasoning'] > 85:
+            reasons.append('Advanced reasoning')
+        if row['vision'] > 80:
+            reasons.append('Vision/multimodal support')
+        for r in reasons:
+            print(f'    -> {r}')
 
-    print(f'\nAll Models Ranked:')
+    print(f'\n  Full ranking:')
     for _, row in result.iterrows():
-        print(f'  #{int(row["rank"])}: {row["model"]} ({row["final_score"]:.1f})')
+        tag = 'FREE' if row['open_source'] else 'PAID'
+        print(f'    {row["model"]:25s} score: {row["final"]:.1f}  ${row["cost_monthly"]:>3}/mo  [{tag}]')
 
-    return result
+    print('\n  BEST VALUE PICK:')
+    best_val = result.iloc[0]
+    alt = free_alts.get(best_val['model'])
+    if alt:
+        print(f'    Paid: {best_val["model"]} (${best_val["cost_monthly"]}/mo)')
+        print(f'    Free: {alt} (${models[models["model"]==alt].iloc[0]["cost_monthly"]:.0f}/mo)')
+        print(f'    Save ${best_val["cost_monthly"] - models[models["model"]==alt].iloc[0]["cost_monthly"]}/month')
+    else:
+        print(f'    Best option: {best_val["model"]} (already free / open source)')
 
-# Scenario 1: E-commerce chatbot (low budget, non-technical)
-ecom_chat = {
-    'industry': 'ecommerce', 'problem': 'chatbot',
-    'budget': 'low', 'technical_level': 'low',
-    'data_sensitivity': 'low', 'accuracy_needed': 'medium'
-}
+    # Generate chart
+    import matplotlib.pyplot as plt
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    scenarios = {
+        'E-commerce Chatbot': {'problem': 'chatbot', 'budget': 100, 'tech': 'low', 'data': 'low'},
+        'Healthcare Docs': {'problem': 'document', 'budget': 99999, 'tech': 'high', 'data': 'high'},
+        'SaaS Code Gen': {'problem': 'code_gen', 'budget': 99999, 'tech': 'high', 'data': 'medium'},
+        'Marketing Content': {'problem': 'content_gen', 'budget': 200, 'tech': 'medium', 'data': 'low'},
+    }
+    for ax, (sn, si) in zip(axes.flat, scenarios.items()):
+        r = recommend(si['problem'], si['budget'], si['data'], si['tech'])
+        if r is not None:
+            colors = ['#2ecc71' if i < 3 else '#95a5a6' for i in range(len(r))]
+            ax.barh(r['model'], r['final'], color=colors)
+            ax.set_title(sn)
+            ax.set_xlabel('Score')
+            ax.set_xlim(0, 100)
+            for i, v in enumerate(r['final']):
+                ax.text(v + 1, i, f'{v:.0f}', va='center', fontsize=9)
+    plt.tight_layout()
+    plt.savefig('ai_solution_recommender.png', dpi=150, bbox_inches='tight')
+    print('\nSaved: ai_solution_recommender.png')
+    models.to_csv('recommendation_output.csv', index=False)
+    print('Exported: recommendation_output.csv')
+    print('Done.')
 
-# Scenario 2: Healthcare document analysis (high privacy, high accuracy)
-healthcare_doc = {
-    'industry': 'healthcare', 'problem': 'document',
-    'budget': 'high', 'technical_level': 'high',
-    'data_sensitivity': 'high', 'accuracy_needed': 'high'
-}
 
-# Scenario 3: SaaS code generation team
-saas_code = {
-    'industry': 'saas', 'problem': 'code_gen',
-    'budget': 'high', 'technical_level': 'high',
-    'data_sensitivity': 'medium', 'accuracy_needed': 'high'
-}
-
-# Scenario 4: Marketing content for global audience
-marketing_content = {
-    'industry': 'marketing', 'problem': 'content_gen',
-    'budget': 'medium', 'technical_level': 'medium',
-    'data_sensitivity': 'low', 'accuracy_needed': 'medium'
-}
-
-scenarios = {
-    'E-commerce Chatbot': ecom_chat,
-    'Healthcare Document Analysis': healthcare_doc,
-    'SaaS Code Generation': saas_code,
-    'Marketing Content': marketing_content,
-}
-
-fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-
-for ax, (scenario_name, scenario_input) in zip(axes.flat, scenarios.items()):
-    result = recommend(scenario_input)
-    colors = ['#2ecc71' if i < 3 else '#95a5a6' for i in range(len(result))]
-    ax.barh(result['model'], result['final_score'], color=colors)
-    ax.set_title(scenario_name)
-    ax.set_xlabel('Recommendation Score')
-    ax.set_xlim(0, 100)
-    for i, val in enumerate(result['final_score']):
-        ax.text(val + 1, i, f'{val:.0f}', va='center', fontsize=9)
-
-plt.tight_layout()
-plt.savefig('ai_solution_recommender.png', dpi=150, bbox_inches='tight')
-print('Saved: ai_solution_recommender.png')
-
-# Run all scenarios
-print('\n========================================')
-print('AI SOLUTION RECOMMENDER - DEMO')
-print('========================================')
-for scenario_name, scenario_input in scenarios.items():
-    result = run_scenario(scenario_input)
-
-# Interactive mode
-print('\n========================================')
-print('CUSTOM SCENARIO MODE')
-print('========================================')
-print('You can modify the scenario variables below')
-print('to test different business requirements.\n')
-
-custom_input = {
-    'industry': 'marketing',
-    'problem': 'content_gen',
-    'budget': 'medium',
-    'technical_level': 'medium',
-    'data_sensitivity': 'low',
-    'accuracy_needed': 'high'
-}
-
-result = run_scenario(custom_input)
-
-# Export
-pd.DataFrame(scenarios.keys()).to_csv('scenarios_output.csv', index=False)
-result.to_csv('recommendation_output.csv', index=False)
-print('\nExported: scenarios_output.csv, recommendation_output.csv')
-print('Done.\n')
+if __name__ == '__main__':
+    interactive()

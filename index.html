@@ -66,7 +66,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubunt
 <section class="hero">
 <div class="badge">Demo Project</div>
 <h1>AI Solution Recommender</h1>
-<p>Decision engine that scores 5 AI models across 10 capability dimensions to recommend the best fit for any business use case.</p>
+<p>Interactive CLI recommender. Tell it your industry, problem type, budget, and privacy needs. Gets a ranked list with platform info and free alternatives.</p>
 </section>
 
 <div class="container">
@@ -75,8 +75,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubunt
 <h2>Key Metrics</h2>
 <div class="grid-3">
 <div class="kpi"><div class="num">5</div><div class="label">Models</div></div>
-<div class="kpi"><div class="num">10</div><div class="label">Capability Dimensions</div></div>
-<div class="kpi"><div class="num">8</div><div class="label">Industries Supported</div></div>
+<div class="kpi"><div class="num">8</div><div class="label">Industries</div></div>
+<div class="kpi"><div class="num">Interactive</div><div class="label">CLI Recommender</div></div>
 </div>
 </div>
 
@@ -94,22 +94,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubunt
 </div>
 
 <div class="card">
-<h2>How It Works</h2>
-<p style="margin-bottom:16px;color:#495057">The recommender takes 6 client inputs and scores each model against weighted capability dimensions:</p>
+<h2>Interactive Recommender <span class="badge-hdr">CLI</span></h2>
+<div style="background:#f0f4ff;border-radius:10px;padding:20px;margin-bottom:16px">
+<p style="margin-bottom:12px;font-weight:600;color:#16213e">Run the interactive CLI:</p>
+<code style="display:block;background:#16213e;color:#a8c8f8;padding:14px;border-radius:8px;font-size:0.9em">python ai_solution_recommender.py</code>
+<p style="margin-top:12px;color:#495057">Answers 5 questions: (1) Industry, (2) Problem type, (3) Budget, (4) Technical level, (5) Data sensitivity. Gets ranked recommendations + free alternatives + platform info.</p>
+</div>
 <div class="grid-2">
-<div class="input-card"><strong>Industry</strong><br>ecommerce, healthcare, finance, education, marketing, legal, manufacturing, saas</div>
-<div class="input-card"><strong>Problem</strong><br>chatbot, content_gen, data_analysis, code_gen, document, translation, classification, extraction</div>
-<div class="input-card"><strong>Budget</strong><br>low ($100/mo), medium ($200/mo), high (unlimited)</div>
-<div class="input-card"><strong>Data Sensitivity</strong><br>low, medium, high (determines open-source weight)</div>
-</div>
-</div>
-
-<div class="card">
-<h2>Sample Scenarios</h2>
-<div class="rec-card"><strong>E-commerce Chatbot (low budget):</strong> Mistral Large - open source, low cost, multilingual support.</div>
-<div class="rec-card"><strong>Healthcare Document (high privacy):</strong> Claude 3.5 Sonnet - best document analysis, high reliability, good privacy.</div>
-<div class="rec-card"><strong>SaaS Code Generation:</strong> Claude 3.5 Sonnet - HumanEval 92%, best-in-class coding.</div>
-<div class="rec-card"><strong>Marketing Content (global):</strong> GPT-4o - 88 creative score, 85 multilingual, ideal for global campaigns.</div>
+<div class="rec-card"><strong>E-commerce Chatbot (low budget):</strong> Mistral Large - open source, $30/mo, Le Chat web + API.</div>
+<div class="rec-card"><strong>Healthcare Documents (high privacy):</strong> Claude 3.5 Sonnet - best analysis, Claude web + API.</div>
+<div class="rec-card"><strong>SaaS Code Generation:</strong> Claude 3.5 Sonnet - 92 coding score, Claude web.</div>
+<div class="rec-card"><strong>Marketing Content:</strong> GPT-4o - strong creative + multilingual, ChatGPT web.</div>
 </div>
 
 <div class="card">
@@ -133,6 +128,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubunt
 <a class="btn btn-outline" href="docs/architecture.md">Architecture</a>
 <a class="btn btn-outline" href="docs/runbook.md">Runbook</a>
 <a class="btn btn-interactive" href="ai_solution_recommender_interactive.html">Interactive Chart</a>
+</div>
+<div style="margin-top:16px;padding:16px;background:#fff8e1;border-radius:10px;border-left:4px solid #ffa000">
+<p style="font-size:0.88em;color:#495057"><strong>Tip:</strong> Run <code>python ai_solution_recommender.py</code> for an interactive session that takes your business requirements and recommends models with platforms.</p>
 </div>
 
 </div>
