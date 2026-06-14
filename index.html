@@ -4,73 +4,87 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>AI Solution Recommender - Demo Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,sans-serif;background:#f4f6f9;color:#1a1a2e;line-height:1.6}
-.nav{background:#16213e;color:white;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
-.nav a{color:#8ab4f8;text-decoration:none;font-size:0.9em;margin-left:16px;transition:color .2s}
-.nav a:hover{color:white}
-.nav .site-title{font-weight:600;font-size:1em;color:white}
-.hero{background:linear-gradient(135deg,#16213e,#0f3460);color:white;padding:48px 24px;text-align:center}
-.hero h1{font-size:2.2em;font-weight:700;margin-bottom:8px}
-.hero p{color:#a8c8f8;font-size:1.05em;max-width:700px;margin:0 auto;line-height:1.5}
-.hero .badge{display:inline-block;background:#e94560;padding:3px 14px;border-radius:20px;font-size:0.75em;font-weight:600;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0f;--bg-card:#12121a;--bg-card-hover:#1a1a28;--text:#e8e8f0;--text-muted:#8888a0;--accent:#6c63ff;--accent2:#00d4aa;--accent3:#ff6b6b;--gradient:linear-gradient(135deg,#6c63ff,#00d4aa);--radius:16px;--radius-sm:8px;--border:1px solid rgba(255,255,255,0.06)}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+.bg-grid{position:fixed;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(rgba(108,99,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(108,99,255,0.03) 1px,transparent 1px);background-size:60px 60px;z-index:-1;pointer-events:none}
+.bg-orbs{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;overflow:hidden}
+.bg-orbs span{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.12;animation:orbFloat 20s ease-in-out infinite}
+.bg-orbs span:nth-child(1){width:400px;height:400px;background:var(--accent);top:-5%;left:-5%;animation-delay:0s}
+.bg-orbs span:nth-child(2){width:350px;height:350px;background:var(--accent2);bottom:-5%;right:-5%;animation-delay:-7s}
+.bg-orbs span:nth-child(3){width:250px;height:250px;background:var(--accent3);top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:-14s}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(50px,-60px) scale(1.1)}50%{transform:translate(-30px,40px) scale(0.9)}75%{transform:translate(60px,30px) scale(1.05)}}
+nav{position:fixed;top:0;left:0;width:100%;z-index:1000;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;background:rgba(10,10,15,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:var(--border)}
+nav .logo{font-weight:700;font-size:0.95em;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+nav .nav-links{display:flex;gap:20px;list-style:none}
+nav .nav-links a{color:var(--text-muted);text-decoration:none;font-size:0.82em;font-weight:500;transition:color 0.3s}
+nav .nav-links a:hover{color:var(--text)}
+.hero{min-height:70vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:120px 24px 60px;position:relative}
+.hero .badge{font-size:0.75em;color:var(--accent2);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;opacity:0;animation:fadeInUp 0.8s forwards}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1.1;margin-bottom:12px;opacity:0;animation:fadeInUp 0.8s 0.15s forwards}
+.hero p{max-width:600px;color:var(--text-muted);font-size:1.02em;line-height:1.7;opacity:0;animation:fadeInUp 0.8s 0.3s forwards}
+@keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
 .container{max-width:960px;margin:0 auto;padding:32px 20px}
-.card{background:white;border-radius:12px;padding:28px;margin:20px 0;box-shadow:0 1px 4px rgba(0,0,0,0.06);transition:box-shadow .2s}
-.card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.1)}
-.card h2{font-size:1.2em;color:#16213e;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #eef0f4}
-.chart-frame{width:100%;border-radius:8px;border:1px solid #eef0f4;overflow:hidden}
+.card{background:var(--bg-card);border-radius:var(--radius);padding:28px;margin:20px 0;border:var(--border);transition:all 0.3s}
+.card:hover{border-color:rgba(108,99,255,0.15)}
+.card h2{font-size:1.1em;font-weight:600;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.chart-frame{width:100%;border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,0.06);overflow:hidden}
 .chart-frame img{width:100%;display:block}
 .chart-frame iframe{width:100%;height:520px;border:none;display:block}
-.chart-caption{font-size:0.88em;color:#6c757d;margin-top:8px}
+.chart-caption{font-size:0.84em;color:var(--text-muted);margin-top:8px}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
 @media(max-width:640px){.grid-3{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.grid-3{grid-template-columns:1fr}}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:640px){.grid-2{grid-template-columns:1fr}}
-.kpi{text-align:center;padding:20px 12px;background:#f8f9fa;border-radius:10px;border:1px solid #eef0f4}
-.kpi .num{font-size:2em;font-weight:700;color:#0f3460}
-.kpi .label{font-size:0.82em;color:#6c757d;margin-top:4px}
-.tag{display:inline-block;background:#e9ecef;color:#495057;padding:4px 12px;border-radius:20px;font-size:0.82em;margin:3px 5px 3px 0}
+.kpi{text-align:center;padding:20px 12px;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,0.04)}
+.kpi .num{font-size:1.8em;font-weight:800;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.kpi .label{font-size:0.8em;color:var(--text-muted);margin-top:4px}
+.tag{display:inline-block;padding:4px 12px;border-radius:20px;font-size:0.78em;margin:3px 5px 3px 0;background:rgba(108,99,255,0.1);color:var(--accent);border:1px solid rgba(108,99,255,0.12)}
 .btn-group{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-.btn{display:inline-flex;align-items:center;gap:6px;background:#0f3460;color:white;padding:10px 22px;border-radius:8px;text-decoration:none;font-weight:500;font-size:0.9em;transition:all .2s}
-.btn:hover{background:#16213e;transform:translateY(-1px)}
-.btn-outline{background:transparent;color:#0f3460;border:2px solid #0f3460}
-.btn-outline:hover{background:#0f3460;color:white}
-.btn-green{background:#2ecc71}
-.btn-green:hover{background:#27ae60}
-.btn-interactive{background:#e94560}
-.btn-interactive:hover{background:#d63851}
-.interactive-section{border:2px solid #e94560;border-radius:12px;padding:24px;background:linear-gradient(135deg,#fff5f7,#fff)}
-.interactive-section h2{color:#e94560}
-.interactive-section .badge-hdr{display:inline-block;background:#e94560;color:white;padding:2px 10px;border-radius:12px;font-size:0.7em;font-weight:600;margin-left:8px;vertical-align:middle}
-.rec-card{background:#e8f4f8;padding:14px;border-radius:10px;border-left:4px solid #0f3460;margin:8px 0}
-.input-card{padding:12px;background:#f8f9fa;border-radius:8px;text-align:center}
-.input-card strong{color:#0f3460}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:50px;font-weight:600;font-size:0.85em;text-decoration:none;transition:all 0.3s;border:none;cursor:pointer}
+.btn-primary{background:var(--gradient);color:#fff}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(108,99,255,0.3)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.12)}
+.btn-outline:hover{background:rgba(255,255,255,0.05);border-color:var(--accent);transform:translateY(-2px)}
+.btn-green{background:rgba(0,212,170,0.15);color:var(--accent2);border:1px solid rgba(0,212,170,0.2)}
+.btn-green:hover{background:rgba(0,212,170,0.25);transform:translateY(-2px)}
+.btn-interactive{background:rgba(255,107,107,0.15);color:var(--accent3);border:1px solid rgba(255,107,107,0.2)}
+.btn-interactive:hover{background:rgba(255,107,107,0.25);transform:translateY(-2px)}
+.interactive-section{border:1px solid rgba(255,107,107,0.2);border-radius:var(--radius);padding:24px;background:rgba(255,107,107,0.03)}
+.interactive-section .badge-hdr{display:inline-block;color:var(--accent3);font-size:0.7em;font-weight:600;margin-left:8px;vertical-align:middle;padding:2px 8px;border:1px solid rgba(255,107,107,0.2);border-radius:12px}
+.rec-card{padding:14px;border-radius:var(--radius-sm);margin:8px 0;border-left:4px solid var(--accent);background:rgba(108,99,255,0.04)}
+.rec-card strong{color:var(--accent)}
 .list-items{list-style:none;padding:0}
-.list-items li{padding:8px 0;border-bottom:1px solid #f0f0f0;display:flex;gap:8px}
+.list-items li{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;gap:8px;color:var(--text-muted);font-size:0.9em}
 .list-items li:last-child{border-bottom:none}
-.list-items li::before{content:"\2714";color:#2ecc71;font-weight:700}
+.list-items li::before{content:"\2713";color:var(--accent2);font-weight:700}
+footer{text-align:center;padding:24px;color:var(--text-muted);font-size:0.82em;border-top:var(--border);margin-top:24px}
+footer a{color:var(--accent);text-decoration:none}
+footer a:hover{text-decoration:underline}
 @media(max-width:480px){.hero h1{font-size:1.6em}.container{padding:16px 12px}.card{padding:16px}}
 </style>
 </head>
 <body>
-<nav class="nav">
-<div class="site-title">AI Solution Recommender</div>
-<div>
-<a href="https://harshvardhankulkarni.github.io/data-analytics-portfolio/">Portfolio</a>
-<a href="https://github.com/harshvardhankulkarni/ai-solution-recommender">GitHub</a>
-</div>
+<div class="bg-grid"></div>
+<div class="bg-orbs"><span></span><span></span><span></span></div>
+<nav>
+<div class="logo">AI Solution Recommender</div>
+<ul class="nav-links">
+<li><a href="https://harshvardhankulkarni.github.io/data-analytics-portfolio/">Portfolio</a></li>
+<li><a href="https://github.com/harshvardhankulkarni/ai-solution-recommender">GitHub</a></li>
+</ul>
 </nav>
-
 <section class="hero">
 <div class="badge">Demo Project</div>
 <h1>AI Solution Recommender</h1>
 <p>Interactive CLI recommender. Tell it your industry, problem type, budget, and privacy needs. Gets a ranked list with platform info and free alternatives.</p>
 </section>
-
 <div class="container">
-
 <div class="card">
 <h2>Key Metrics</h2>
 <div class="grid-3">
@@ -79,40 +93,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubunt
 <div class="kpi"><div class="num">Interactive</div><div class="label">CLI Recommender</div></div>
 </div>
 </div>
-
 <div class="card">
 <h2>Static Output</h2>
 <div class="chart-frame"><img src="ai_solution_recommender.png" alt="AI Solution Recommender chart"></div>
 <p class="chart-caption">Recommendation scores for 5 models across 4 business scenarios: e-commerce chatbot, healthcare document analysis, SaaS code generation, and marketing content.</p>
 </div>
-
 <div class="card interactive-section">
 <h2>Interactive Chart <span class="badge-hdr">Try It</span></h2>
-<p style="margin-bottom:12px;color:#495057">Radar chart shows each model's capability profile. Cost comparison helps budget-conscious decisions.</p>
+<p style="margin-bottom:12px;color:var(--text-muted)">Radar chart shows each model's capability profile. Cost comparison helps budget-conscious decisions.</p>
 <div class="chart-frame"><iframe src="ai_solution_recommender_interactive.html" loading="lazy" title="Interactive solution recommender chart"></iframe></div>
-<p class="chart-caption"><a href="ai_solution_recommender_interactive.html" target="_blank" style="color:#e94560;font-weight:500">Open interactive chart full screen</a></p>
+<p class="chart-caption"><a href="ai_solution_recommender_interactive.html" target="_blank" style="color:var(--accent3);font-weight:500">Open interactive chart full screen</a></p>
 </div>
-
 <div class="card">
 <h2>Interactive Recommender <span class="badge-hdr">CLI</span></h2>
-<div style="background:#f0f4ff;border-radius:10px;padding:20px;margin-bottom:16px">
-<p style="margin-bottom:12px;font-weight:600;color:#16213e">Run the interactive CLI:</p>
-<code style="display:block;background:#16213e;color:#a8c8f8;padding:14px;border-radius:8px;font-size:0.9em">python ai_solution_recommender.py</code>
-<p style="margin-top:12px;color:#495057">Answers 5 questions: (1) Industry, (2) Problem type, (3) Budget, (4) Technical level, (5) Data sensitivity. Gets ranked recommendations + free alternatives + platform info.</p>
+<div style="background:rgba(108,99,255,0.05);border-radius:var(--radius-sm);padding:20px;margin-bottom:16px">
+<p style="margin-bottom:12px;font-weight:600">Run the interactive CLI:</p>
+<code style="display:block;background:rgba(0,0,0,0.3);color:var(--accent);padding:14px;border-radius:8px;font-size:0.9em;border:1px solid rgba(255,255,255,0.06)">python ai_solution_recommender.py</code>
+<p style="margin-top:12px;color:var(--text-muted)">Answers 5 questions: (1) Industry, (2) Problem type, (3) Budget, (4) Technical level, (5) Data sensitivity. Gets ranked recommendations + free alternatives + platform info.</p>
 </div>
 <div class="grid-2">
-<div class="rec-card"><strong>E-commerce Chatbot (low budget):</strong> Mistral Large - open source, $30/mo, Le Chat web + API.</div>
-<div class="rec-card"><strong>Healthcare Documents (high privacy):</strong> Claude 3.5 Sonnet - best analysis, Claude web + API.</div>
-<div class="rec-card"><strong>SaaS Code Generation:</strong> Claude 3.5 Sonnet - 92 coding score, Claude web.</div>
-<div class="rec-card"><strong>Marketing Content:</strong> GPT-4o - strong creative + multilingual, ChatGPT web.</div>
+<div class="rec-card"><strong>E-commerce Chatbot (low budget):</strong><br>Mistral Large - open source, $30/mo, Le Chat web + API.</div>
+<div class="rec-card"><strong>Healthcare Documents (high privacy):</strong><br>Claude 3.5 Sonnet - best analysis, Claude web + API.</div>
+<div class="rec-card"><strong>SaaS Code Generation:</strong><br>Claude 3.5 Sonnet - 92 coding score, Claude web.</div>
+<div class="rec-card"><strong>Marketing Content:</strong><br>GPT-4o - strong creative + multilingual, ChatGPT web.</div>
 </div>
-
+</div>
 <div class="card">
 <h2>Notebook</h2>
-<p style="margin-bottom:12px;color:#495057">Explore the recommendation engine and test your own scenarios in Jupyter Notebook.</p>
+<p style="margin-bottom:12px;color:var(--text-muted)">Explore the recommendation engine and test your own scenarios in Jupyter Notebook.</p>
 <a class="btn btn-green" href="ai_solution_recommender.ipynb">Download .ipynb Notebook</a>
 </div>
-
 <div class="card">
 <h2>Tech Stack</h2>
 <span class="tag">Python</span>
@@ -121,22 +131,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubunt
 <span class="tag">Matplotlib</span>
 <span class="tag">Plotly</span>
 </div>
-
 <div class="btn-group">
-<a class="btn" href="https://github.com/harshvardhankulkarni/ai-solution-recommender">View Repository</a>
+<a class="btn btn-primary" href="https://github.com/harshvardhankulkarni/ai-solution-recommender">View Repository</a>
 <a class="btn btn-outline" href="ai_solution_recommender.py">Download Script</a>
 <a class="btn btn-outline" href="docs/architecture.md">Architecture</a>
 <a class="btn btn-outline" href="docs/runbook.md">Runbook</a>
 <a class="btn btn-interactive" href="ai_solution_recommender_interactive.html">Interactive Chart</a>
 </div>
-<div style="margin-top:16px;padding:16px;background:#fff8e1;border-radius:10px;border-left:4px solid #ffa000">
-<p style="font-size:0.88em;color:#495057"><strong>Tip:</strong> Run <code>python ai_solution_recommender.py</code> for an interactive session that takes your business requirements and recommends models with platforms.</p>
+<div style="margin-top:16px;padding:16px;background:rgba(255,160,0,0.05);border-radius:var(--radius-sm);border-left:4px solid #ffa000">
+<p style="font-size:0.88em;color:var(--text-muted)"><strong>Tip:</strong> Run <code style="color:var(--accent)">python ai_solution_recommender.py</code> for an interactive session that takes your business requirements and recommends models with platforms.</p>
 </div>
-
 </div>
-
-<footer style="text-align:center;padding:24px;color:#6c757d;font-size:0.85em;border-top:1px solid #dee2e6;margin-top:24px">
-<p><a href="https://harshvardhankulkarni.github.io/data-analytics-portfolio/" style="color:#0f3460">Back to Portfolio</a> &middot; Harshvardhan Kulkarni</p>
+<footer>
+<p><a href="https://harshvardhankulkarni.github.io/data-analytics-portfolio/">Back to Portfolio</a> &middot; Harshvardhan Kulkarni</p>
 </footer>
 </body>
 </html>
